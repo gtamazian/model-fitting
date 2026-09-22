@@ -15,6 +15,7 @@ class FigureParams:
     height: int
     resolution: int
     output_format: str
+    disable_col_cluster: bool
 
 
 def read_single_features(path: str) -> list[str]:
@@ -48,7 +49,7 @@ def generate_plot(hits, single_features, fig_params, output_path):
         cmap="Blues",
         row_colors=row_colors,
         col_colors=col_colors,
-        col_cluster=True,
+        col_cluster=not fig_params.disable_col_cluster,
         yticklabels=True,
     )
     plt.setp(
@@ -76,6 +77,7 @@ def generate_plot(hits, single_features, fig_params, output_path):
 @click.option("--height", default=8, type=int)
 @click.option("--resolution", default=300, type=int)
 @click.option("--output-format", default="svg")
+@click.option("--disable-col-cluster", is_flag=True)
 def generate_heatmap(
     hits_path: str,
     output_path: str,
@@ -84,13 +86,16 @@ def generate_heatmap(
     height: int,
     resolution: int,
     output_format: str,
+    disable_col_cluster: bool,
 ) -> None:
     hits = pd.read_csv(hits_path, index_col="sample_name")
     if single_feature_path is not None:
         single_features = read_single_features(single_feature_path)
     else:
         single_features = None
-    fig_params = FigureParams(width, height, resolution, output_format)
+    fig_params = FigureParams(
+        width, height, resolution, output_format, disable_col_cluster
+    )
     generate_plot(hits, single_features, fig_params, output_path)
 
 
